@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 /*
 Goals: implement a doubly linked list
 - insert
@@ -11,10 +12,7 @@ Goals: implement a doubly linked list
 - pop_left
 - pop_right
 - find
-- Clearing the list
-- Destroying the list structure itself
 */ 
-
 
 
 struct Node {
@@ -32,8 +30,6 @@ struct Node* construct_node(const char* data) {
     return node;
 }
 
-
-
 struct DoubleLink {
     struct Node* first;
     struct Node* last;
@@ -48,14 +44,15 @@ struct DoubleLink* construct_double_link(){
     return list;
 }
 
+
 // Define the interface
 int append_left(struct DoubleLink* list, struct Node* node); // Done
 int append_right(struct DoubleLink* list, struct Node* node); // Done
-int pop_left(struct DoubleLink* list);
-int pop_right(struct DoubleLink* list);
-char* get_first(struct DoubleLink* list);
-char* get_last(struct DoubleLink* list);
-int insert_node(struct DoubleLink* list, struct Node* node);
+int pop_left(struct DoubleLink* list); // Done
+int pop_right(struct DoubleLink* list); // Done
+char* get_first(struct DoubleLink* list); // Done
+char* get_last(struct DoubleLink* list); // Done
+int insert_before(struct DoubleLink* list, struct Node* node, int index);
 struct Node* find_node(struct DoubleLink* list, const char* search_string);
 int size(struct DoubleLink* list);
 
@@ -77,7 +74,7 @@ int main() {
     
     free(node_1->data);
     free(node_1);
-        
+    free(list);
     // Close the file
     fclose(output_file);
     return 0;
@@ -126,13 +123,85 @@ int pop_left(struct DoubleLink* list){
     if(list == NULL || list->size == 0){
         return -1;
     }
-    free(list->first->data); // free the memory of the first node
-    // Case
-    // size is one
-    // size > 1
-    struct Node* temp = list->first; // need the temp so we can detach
-    list->first = list->first->next;
+    struct Node* temp = list->first;
+    if (list->size==1){
+        list->first = NULL;
+        list->last = NULL;
+    } else {
+        list->first = list->first->next;
+        list->first->prev = NULL;
+    }
+    free(temp->data);
+    free(temp);
+    list->size--;
     return 0;
 }
 
-// int pop_right(struct DoubleLink* list);
+int pop_right(struct DoubleLink* list){
+    if(list == NULL || list->size == 0){
+        return -1;
+    }
+    struct Node* temp = list->last;
+    if (list->size==1){
+        list->first = NULL;
+        list->last = NULL;
+    } else {
+        list->last = list->last->prev;
+        list->last->next = NULL;
+    }
+    free(temp->data);
+    free(temp);
+    list->size--;
+    return 0;
+}
+
+char* get_first(struct DoubleLink* list){
+    if (list == NULL){
+        return -1;
+    } else {
+        return list->first->data;
+    }
+}
+
+char* get_last(struct DoubleLink* list){
+    if (list == NULL){
+        return NULL;
+    } else {
+        return list->last->data;
+    }
+}
+
+int insert_before(struct DoubleLink* list, struct Node* node, int index) {
+    // Check for invalid cases
+    if(list == NULL || node == NULL || index < 0 || index > list->size) {
+        return -1;
+    }
+
+    // Handle edge cases
+    if (index == 0) {
+        return append_left(list, node);
+    } else if (index == list->size) {
+        return append_right(list, node);
+    }
+    struct Node* temp = list->first;
+    int curr_index = 0;
+    while (curr_index < index) {
+        temp = temp->next;
+        curr_index++;
+    }
+    node->next = temp;
+    node->prev = temp->prev;
+    temp->prev->next=node;
+    temp->prev=node;
+
+    list->size++;
+    return 1;
+}
+
+int size(struct DoubleLink* list){
+    if (list == NULL){
+        return NULL;
+    } else {
+        return list->size;
+    }
+}
