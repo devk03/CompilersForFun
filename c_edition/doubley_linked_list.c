@@ -4,7 +4,7 @@
 
 
 /*
-Goals: implement a doubly linked list
+Goals: implement a doubly linked list - open practice problem from crafting interpreters! requirements we all self made
 - insert
 - delete
 - append_left
@@ -22,8 +22,8 @@ struct Node {
 };
 
 struct Node* construct_node(const char* data) {
-    struct Node* node = (struct Node*)malloc(sizeof(struct Node)); // Need to allocate memory and caste location to a node* instead of void*
-    node -> data = (char*)malloc(strlen(data)+1); // Need to allocate one more block for the null terminator
+    struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    node -> data = (char*)malloc(strlen(data)+1);
     strcpy(node->data, data);
     node -> prev = NULL;
     node -> next = NULL;
@@ -52,9 +52,9 @@ int pop_left(struct DoubleLink* list); // Done
 int pop_right(struct DoubleLink* list); // Done
 char* get_first(struct DoubleLink* list); // Done
 char* get_last(struct DoubleLink* list); // Done
-int insert_before(struct DoubleLink* list, struct Node* node, int index);
+int insert_before(struct DoubleLink* list, struct Node* node, int index); // Done
 struct Node* find_node(struct DoubleLink* list, const char* search_string);
-int size(struct DoubleLink* list);
+int size(struct DoubleLink* list); // Done
 
 
 
@@ -66,16 +66,45 @@ int main() {
     }
 
     struct DoubleLink* list = construct_double_link();
+    fprintf(output_file, "Initial size: %d\n", size(list));
 
-    // Node construction test
-    struct Node* node_1 = construct_node("This is node 1.");
-    fprintf(output_file, "%s\n", node_1->data);
+    // Test node construction and append operations
+    struct Node* node_1 = construct_node("First Node");
+    struct Node* node_2 = construct_node("Second Node");
+    struct Node* node_3 = construct_node("Third Node");
     
+    append_right(list, node_1);
+    fprintf(output_file, "After append_right: First=%s, Size=%d\n", get_first(list), size(list));
     
-    free(node_1->data);
-    free(node_1);
+    append_left(list, node_2);
+    fprintf(output_file, "After append_left: First=%s, Last=%s, Size=%d\n", 
+            get_first(list), get_last(list), size(list));
+
+    // Test insert operation
+    struct Node* insert_node = construct_node("Inserted Node");
+    insert_before(list, insert_node, 1);
+    fprintf(output_file, "After insert: First=%s, Last=%s, Size=%d\n", 
+            get_first(list), get_last(list), size(list));
+
+    // Test find operation
+    struct Node* found = find_node(list, "First Node");
+    fprintf(output_file, "Find 'First Node': %s\n", 
+            found ? "Found" : "Not Found");
+
+    // Test pop operations
+    pop_left(list);
+    fprintf(output_file, "After pop_left: First=%s, Size=%d\n", 
+            get_first(list), size(list));
+
+    pop_right(list);
+    fprintf(output_file, "After pop_right: Last=%s, Size=%d\n", 
+            get_last(list), size(list));
+
+    // Cleanup
+    while (size(list) > 0) {
+        pop_left(list);
+    }
     free(list);
-    // Close the file
     fclose(output_file);
     return 0;
 }
@@ -156,28 +185,24 @@ int pop_right(struct DoubleLink* list){
 }
 
 char* get_first(struct DoubleLink* list){
-    if (list == NULL){
-        return -1;
-    } else {
-        return list->first->data;
+    if (list == NULL || list->first == NULL){
+        return NULL;
     }
+    return list->first->data;
 }
 
 char* get_last(struct DoubleLink* list){
     if (list == NULL){
         return NULL;
-    } else {
-        return list->last->data;
     }
+    return list->last->data;
 }
 
 int insert_before(struct DoubleLink* list, struct Node* node, int index) {
-    // Check for invalid cases
     if(list == NULL || node == NULL || index < 0 || index > list->size) {
         return -1;
     }
 
-    // Handle edge cases
     if (index == 0) {
         return append_left(list, node);
     } else if (index == list->size) {
@@ -198,9 +223,24 @@ int insert_before(struct DoubleLink* list, struct Node* node, int index) {
     return 1;
 }
 
+struct Node* find_node(struct DoubleLink* list, const char* search_string){
+    if (list == NULL || search_string==NULL){
+        return NULL;
+    }
+    struct Node* current = list->first;
+    while(current != NULL){
+        if(strcmp(current->data,search_string)==0){
+            return current;
+        } else {
+            current = current->next;
+        }
+    }
+    return NULL;
+}
+
 int size(struct DoubleLink* list){
     if (list == NULL){
-        return NULL;
+        return -1;
     } else {
         return list->size;
     }
