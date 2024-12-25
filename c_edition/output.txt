@@ -1,0 +1,7 @@
+Initial size: 0
+After append_right: First=First Node, Size=1
+After append_left: First=Second Node, Last=First Node, Size=2
+After insert: First=Second Node, Last=First Node, Size=3
+Find 'First Node': Found
+After pop_left: First=Inserted Node, Size=2
+After pop_right: Last=Inserted Node, Size=1
