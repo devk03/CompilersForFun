@@ -1,4 +1,4 @@
-package interpreter;
+package tree_walk_interpreter;
 
 enum TokenType {
     // Single-character tokens.

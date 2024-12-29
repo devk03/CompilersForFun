@@ -1,4 +1,4 @@
-package interpreter;
+package tree_walk_interpreter;
 
 class Token {
     TokenType type;
